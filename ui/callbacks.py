@@ -207,6 +207,29 @@ def register_callbacks(app: Dash) -> None:
         return idx, info, fig, idx == 0, idx == n - 1
 
     @app.callback(
+        Output("interval-dropdown", "options"),
+        Output("interval-dropdown", "value"),
+        Output("symbol-input", "placeholder"),
+        Input("api-dropdown", "value"),
+        State("interval-dropdown", "value"),
+    )
+    def update_api_dependent_fields(api_name, current_interval):
+        api = AVAILABLE_APIS.get(api_name)
+        if api is None:
+            return no_update, no_update, no_update
+        options = [{"label": i, "value": i} for i in api.supported_intervals]
+        if current_interval in api.supported_intervals:
+            new_value = current_interval
+        elif "15m" in api.supported_intervals:
+            new_value = "15m"
+        elif "1h" in api.supported_intervals:
+            new_value = "1h"
+        else:
+            new_value = api.supported_intervals[0]
+        placeholder = "Ex: BTC-USD" if api_name == "Coinbase" else "Ex: BTCUSDT"
+        return options, new_value, placeholder
+
+    @app.callback(
         Output("open-folder-button", "n_clicks"),
         Input("open-folder-button", "n_clicks"),
         prevent_initial_call=True,
