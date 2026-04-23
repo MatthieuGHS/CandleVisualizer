@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import platform
-import re
 import subprocess
 from datetime import datetime
 from io import StringIO
@@ -17,7 +16,6 @@ from core.excel_io import EXPORTS_DIR, append_trade, delete_trade, get_status, r
 
 BULL_COLOR = "#26a69a"
 BEAR_COLOR = "#ef5350"
-TIME_RE = re.compile(r"^(\d{1,2}):(\d{2})$")
 
 
 def register_callbacks(app: Dash) -> None:
@@ -31,18 +29,14 @@ def register_callbacks(app: Dash) -> None:
         State("api-dropdown", "value"),
         State("symbol-input", "value"),
         State("interval-dropdown", "value"),
-        State("start-date", "date"),
-        State("start-time", "value"),
-        State("end-date", "date"),
-        State("end-time", "value"),
+        State("start-datetime", "value"),
+        State("end-datetime", "value"),
         prevent_initial_call=True,
     )
-    def load_candles(
-        n_clicks, api_name, symbol, interval, start_date, start_time, end_date, end_time
-    ):
+    def load_candles(n_clicks, api_name, symbol, interval, start_str, end_str):
         try:
-            start_dt = _combine_datetime(start_date, start_time)
-            end_dt = _combine_datetime(end_date, end_time)
+            start_dt = _parse_datetime(start_str, "début")
+            end_dt = _parse_datetime(end_str, "fin")
         except ValueError as e:
             return no_update, no_update, _empty_figure(), _error(str(e)), True
 
@@ -325,18 +319,26 @@ def _empty_figure() -> go.Figure:
     return fig
 
 
-def _combine_datetime(date_str: str | None, time_str: str | None) -> datetime:
-    if not date_str:
-        raise ValueError("Date manquante.")
-    time_str = (time_str or "00:00").strip()
-    m = TIME_RE.match(time_str)
-    if not m:
-        raise ValueError(f"Format d'heure invalide: '{time_str}' (attendu HH:MM).")
-    hour, minute = int(m.group(1)), int(m.group(2))
-    if not (0 <= hour < 24 and 0 <= minute < 60):
-        raise ValueError(f"Heure hors plage: '{time_str}'.")
-    base = datetime.fromisoformat(date_str[:10])
-    return base.replace(hour=hour, minute=minute)
+_DATETIME_FORMATS = (
+    "%d/%m/%Y %H:%M",
+    "%d/%m/%Y",
+    "%Y-%m-%d %H:%M",
+    "%Y-%m-%d",
+)
+
+
+def _parse_datetime(raw: str | None, field: str) -> datetime:
+    if not raw or not raw.strip():
+        raise ValueError(f"Date de {field} manquante.")
+    s = raw.strip()
+    for fmt in _DATETIME_FORMATS:
+        try:
+            return datetime.strptime(s, fmt)
+        except ValueError:
+            continue
+    raise ValueError(
+        f"Date de {field} invalide : '{s}' (attendu JJ/MM/AAAA HH:MM)."
+    )
 
 
 def _error(msg: str) -> html.Span:

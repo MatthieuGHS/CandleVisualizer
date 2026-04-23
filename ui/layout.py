@@ -11,7 +11,8 @@ from core.excel_io import get_status
 def build_layout() -> html.Div:
     default_intervals = AVAILABLE_APIS["Binance"].supported_intervals
     today = date.today()
-    default_start = today - timedelta(days=2)
+    default_start_str = (today - timedelta(days=2)).strftime("%d/%m/%Y") + " 00:00"
+    default_end_str = today.strftime("%d/%m/%Y") + " 00:00"
     status = get_status()
 
     return html.Div(
@@ -73,46 +74,26 @@ def build_layout() -> html.Div:
                         [
                             html.Div(
                                 [
-                                    html.Label("Début (UTC)"),
-                                    html.Div(
-                                        [
-                                            dcc.DatePickerSingle(
-                                                id="start-date",
-                                                date=default_start,
-                                                display_format="DD/MM/YYYY",
-                                            ),
-                                            dcc.Input(
-                                                id="start-time",
-                                                type="text",
-                                                value="00:00",
-                                                placeholder="HH:MM",
-                                                style={"width": "90px", "marginLeft": "0.5rem"},
-                                            ),
-                                        ],
-                                        style={"display": "flex", "alignItems": "center"},
+                                    html.Label("Début (UTC) — JJ/MM/AAAA HH:MM"),
+                                    dcc.Input(
+                                        id="start-datetime",
+                                        type="text",
+                                        value=default_start_str,
+                                        placeholder="01/06/2025 00:00",
+                                        style={"width": "100%"},
                                     ),
                                 ],
                                 style={"flex": "1", "minWidth": "220px"},
                             ),
                             html.Div(
                                 [
-                                    html.Label("Fin (UTC)"),
-                                    html.Div(
-                                        [
-                                            dcc.DatePickerSingle(
-                                                id="end-date",
-                                                date=today,
-                                                display_format="DD/MM/YYYY",
-                                            ),
-                                            dcc.Input(
-                                                id="end-time",
-                                                type="text",
-                                                value="00:00",
-                                                placeholder="HH:MM",
-                                                style={"width": "90px", "marginLeft": "0.5rem"},
-                                            ),
-                                        ],
-                                        style={"display": "flex", "alignItems": "center"},
+                                    html.Label("Fin (UTC) — JJ/MM/AAAA HH:MM"),
+                                    dcc.Input(
+                                        id="end-datetime",
+                                        type="text",
+                                        value=default_end_str,
+                                        placeholder="01/12/2025 00:00",
+                                        style={"width": "100%"},
                                     ),
                                 ],
                                 style={"flex": "1", "minWidth": "220px"},
