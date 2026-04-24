@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -64,7 +64,6 @@ def append_trade(
         start_utc=start_utc,
         end_utc=end_utc,
         nb_candles=len(candles),
-        added_at=datetime.now(timezone.utc).replace(tzinfo=None),
     )
 
     new_meta_row = pd.DataFrame([trade_meta.to_row()], columns=METADATA_COLUMNS)
@@ -72,6 +71,7 @@ def append_trade(
 
     new_candles = candles.copy()
     new_candles.insert(0, "trade_id", trade_id)
+    new_candles["pct_change"] = ((new_candles["close"] - new_candles["open"]) / new_candles["open"] * 100).round(4)
     new_candles = new_candles[CANDLES_COLUMNS]
     candles_df = pd.concat([candles_df, new_candles], ignore_index=True)
 

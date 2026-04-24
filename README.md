@@ -71,7 +71,6 @@ Le fichier `exports/candles.xlsx` est un classeur à **deux feuilles**. Elles so
 | `start_utc` | datetime | Début de la plage demandée (UTC, naïf). |
 | `end_utc` | datetime | Fin de la plage demandée (UTC, naïf). |
 | `nb_candles` | int | Nombre de chandelles récupérées pour ce trade (redondant avec un `COUNT` sur `candles` mais pratique). |
-| `added_at` | datetime | Horodatage d'ajout au fichier (UTC, naïf). |
 
 ### Feuille `candles` — toutes les chandelles de tous les trades empilées
 
@@ -85,6 +84,7 @@ Le fichier `exports/candles.xlsx` est un classeur à **deux feuilles**. Elles so
 | `close` | float | Prix de clôture. |
 | `volume` | float | Volume sur la chandelle (en unité de base — pour `BTCUSDT`, exprimé en BTC). |
 | `close_time` | datetime | Clôture de la chandelle (UTC, naïf). Égale à `open_time + interval − 1ms` pour Binance. |
+| `pct_change` | float | Variation de la chandelle en pourcentage : `(close − open) / open × 100`. Positif = bougie haussière, négatif = bougie baissière. Arrondi à 4 décimales. |
 
 ### Relation entre les feuilles
 

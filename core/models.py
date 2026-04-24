@@ -14,7 +14,6 @@ class TradeMetadata:
     start_utc: datetime
     end_utc: datetime
     nb_candles: int
-    added_at: datetime
 
     def to_row(self) -> dict:
         return {
@@ -26,7 +25,6 @@ class TradeMetadata:
             "start_utc": self.start_utc,
             "end_utc": self.end_utc,
             "nb_candles": self.nb_candles,
-            "added_at": self.added_at,
         }
 
 
@@ -39,7 +37,6 @@ METADATA_COLUMNS = [
     "start_utc",
     "end_utc",
     "nb_candles",
-    "added_at",
 ]
 
 CANDLES_COLUMNS = [
@@ -51,4 +48,5 @@ CANDLES_COLUMNS = [
     "close",
     "volume",
     "close_time",
+    "pct_change",
 ]

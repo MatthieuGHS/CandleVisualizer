@@ -247,6 +247,8 @@ def register_callbacks(app: Dash) -> None:
 
 def build_figure(df: pd.DataFrame, symbol: str, interval: str, exchange: str) -> go.Figure:
     colors = [BULL_COLOR if c >= o else BEAR_COLOR for o, c in zip(df["open"], df["close"])]
+    pct_change = (df["close"] - df["open"]) / df["open"] * 100
+    hover_text = [f"Variation: {p:+.2f}%" for p in pct_change]
 
     fig = make_subplots(
         rows=2,
@@ -266,6 +268,7 @@ def build_figure(df: pd.DataFrame, symbol: str, interval: str, exchange: str) ->
             name=symbol,
             increasing_line_color=BULL_COLOR,
             decreasing_line_color=BEAR_COLOR,
+            text=hover_text,
         ),
         row=1,
         col=1,

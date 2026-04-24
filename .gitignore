@@ -1,5 +1,9 @@
-# Excel archives (données utilisateur)
+#guide
+guide.md
+
+# Excel archives (données utilisateur) et csv
 exports/*.xlsx
+*.csv
 
 # Python
 __pycache__/
@@ -20,3 +24,4 @@ env/
 # OS
 .DS_Store
 Thumbs.db
+
