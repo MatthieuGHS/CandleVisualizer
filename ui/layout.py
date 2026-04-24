@@ -19,7 +19,7 @@ def build_layout() -> html.Div:
         [
             html.H1("Candle Visualizer", style={"marginBottom": "0.25rem"}),
             html.P(
-                "Récupère des chandeliers crypto, visualise-les, et empile-les dans un fichier Excel réutilisable.",
+                "Récupère des bougies crypto, visualise-les, et empile-les dans un fichier Excel réutilisable.",
                 style={"color": "#555", "marginTop": "0"},
             ),
             # ------------------------------------------------------------------
@@ -102,7 +102,7 @@ def build_layout() -> html.Div:
                         style={"display": "flex", "gap": "1rem", "marginTop": "1rem", "flexWrap": "wrap"},
                     ),
                     html.Button(
-                        "Charger les chandelles",
+                        "Charger les bougies",
                         id="load-button",
                         n_clicks=0,
                         style={"marginTop": "1rem", "padding": "0.5rem 1rem"},

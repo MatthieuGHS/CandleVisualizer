@@ -62,7 +62,7 @@ def register_callbacks(app: Dash) -> None:
                 None,
                 None,
                 _empty_figure(),
-                _error("Aucune chandelle retournée pour cette plage."),
+                _error("Aucune bougie retournée pour cette plage."),
                 True,
             )
 
@@ -77,7 +77,7 @@ def register_callbacks(app: Dash) -> None:
         }
 
         status = html.Span(
-            f"✓ {len(df)} chandelles chargées ({df['open_time'].min()} → {df['open_time'].max()})",
+            f"✓ {len(df)} bougies chargées ({df['open_time'].min()} → {df['open_time'].max()})",
             style={"color": "#2e7d32"},
         )
 
@@ -94,7 +94,7 @@ def register_callbacks(app: Dash) -> None:
     )
     def export_to_excel(n_clicks, candles_json, context, label):
         if not candles_json or not context:
-            return _error("Charge d'abord des chandelles avant d'exporter."), no_update
+            return _error("Charge d'abord des bougies avant d'exporter."), no_update
 
         df = pd.read_json(StringIO(candles_json), orient="split")
         df["open_time"] = pd.to_datetime(df["open_time"])
@@ -309,7 +309,7 @@ def _empty_figure() -> go.Figure:
         margin=dict(l=40, r=20, t=30, b=30),
         annotations=[
             dict(
-                text="Aucune donnée — charge des chandelles pour commencer.",
+                text="Aucune donnée — charge des bougies pour commencer.",
                 xref="paper",
                 yref="paper",
                 x=0.5,

@@ -1,6 +1,6 @@
 # CandleVisualizer
 
-Application Dash locale pour récupérer, visualiser et archiver des chandeliers crypto. Chaque trade chargé peut être empilé dans un **unique** fichier Excel réutilisable — suffisant pour reconstruire n'importe quel graphique plus tard, sans refaire d'appel API.
+Application Dash locale pour récupérer, visualiser et archiver des bougies crypto. Chaque trade chargé peut être empilé dans un **unique** fichier Excel réutilisable — suffisant pour reconstruire n'importe quel graphique plus tard, sans refaire d'appel API.
 
 Un script secondaire (`build_labels.py`) consomme ensuite cet Excel pour produire un `labels.csv` au format imposé par `guide.md` (pattern "pump & dump" : timestamp 30m du sommet pour chaque exemple).
 
@@ -26,7 +26,7 @@ Puis ouvrir **http://127.0.0.1:8050** dans le navigateur. `Ctrl+C` pour arrêter
 
 ## Utilisation
 
-### 1. Charger des chandelles (section « Configuration »)
+### 1. Charger des bougies (section « Configuration »)
 
 | Champ | Description |
 |---|---|
@@ -35,7 +35,7 @@ Puis ouvrir **http://127.0.0.1:8050** dans le navigateur. `Ctrl+C` pour arrêter
 | **Interval** | Dépend de l'exchange. **Binance** : 15 granularités (`1m` → `1M`). **Coinbase** : 6 granularités (`1m`, `5m`, `15m`, `1h`, `6h`, `1d`). La liste se met à jour en changeant d'API. |
 | **Début / Fin (UTC)** | Bornes de la plage à récupérer. Champ texte unique au format `JJ/MM/AAAA HH:MM` (ex. `25/04/2025 14:30`). Les formats `JJ/MM/AAAA`, `AAAA-MM-JJ HH:MM` et `AAAA-MM-JJ` sont également acceptés. **Les heures sont interprétées en UTC.** |
 
-Clic sur **Charger les chandelles** → appel API, récupération paginée (Binance renvoie max 1000 chandelles par requête, Coinbase 300 ; le fetch boucle automatiquement pour couvrir la plage entière), puis rendu du graphique (candles + histogramme de volume). Le survol d'une bougie affiche OHLC + la **variation en %** de la bougie.
+Clic sur **Charger les bougies** → appel API, récupération paginée (Binance renvoie max 1000 bougies par requête, Coinbase 300 ; le fetch boucle automatiquement pour couvrir la plage entière), puis rendu du graphique (candles + histogramme de volume). Le survol d'une bougie affiche OHLC + la **variation en %** de la bougie.
 
 ### 2. Empiler un trade dans Excel (section « Export Excel »)
 
@@ -51,7 +51,7 @@ Relit directement `exports/candles.xlsx` à chaque action, sans appel API.
 |---|---|
 | **← Précédent** / **Suivant →** | Navigue entre les trades. Désactivés aux bornes. |
 | **Rafraîchir** | Relit le fichier depuis le disque (utile si tu as édité le `.xlsx` à côté). |
-| **🗑 Supprimer** | Supprime le trade courant (metadata + ses chandelles) du fichier Excel après confirmation. L'archive recale automatiquement l'affichage. |
+| **🗑 Supprimer** | Supprime le trade courant (metadata + ses bougies) du fichier Excel après confirmation. L'archive recale automatiquement l'affichage. |
 
 Le libellé au-dessus du graphique indique : `Trade X/Y — {label} — {symbol} {interval} ({exchange})`.
 
@@ -69,24 +69,24 @@ Le fichier `exports/candles.xlsx` est un classeur à **deux feuilles**. Elles so
 | `label` | string | Libellé donné à l'export (ex. `long BTC avril`), ou valeur générée automatiquement. |
 | `exchange` | string | Nom de l'exchange (`Binance`). |
 | `symbol` | string | Paire de trading (`BTCUSDT`). |
-| `interval` | string | Granularité des chandelles (`15m`, `1h`, `1d`…). |
+| `interval` | string | Granularité des bougies (`15m`, `1h`, `1d`…). |
 | `start_utc` | datetime | Début de la plage demandée (UTC, naïf). |
 | `end_utc` | datetime | Fin de la plage demandée (UTC, naïf). |
-| `nb_candles` | int | Nombre de chandelles récupérées pour ce trade (redondant avec un `COUNT` sur `candles` mais pratique). |
+| `nb_candles` | int | Nombre de bougies récupérées pour ce trade (redondant avec un `COUNT` sur `candles` mais pratique). |
 
-### Feuille `candles` — toutes les chandelles de tous les trades empilées
+### Feuille `candles` — toutes les bougies de tous les trades empilées
 
 | Colonne | Type | Description |
 |---|---|---|
 | `trade_id` | string | Référence vers une ligne de `metadata`. |
-| `open_time` | datetime | Ouverture de la chandelle (UTC, naïf). |
+| `open_time` | datetime | Ouverture de la bougie (UTC, naïf). |
 | `open` | float | Prix d'ouverture. |
 | `high` | float | Plus haut. |
 | `low` | float | Plus bas. |
 | `close` | float | Prix de clôture. |
-| `volume` | float | Volume sur la chandelle (en unité de base — pour `BTCUSDT`, exprimé en BTC). |
-| `close_time` | datetime | Clôture de la chandelle (UTC, naïf). Égale à `open_time + interval − 1ms` pour Binance. |
-| `pct_change` | float | Variation de la chandelle en pourcentage : `(close − open) / open × 100`. Positif = bougie haussière, négatif = bougie baissière. Arrondi à 4 décimales. |
+| `volume` | float | Volume sur la bougie (en unité de base — pour `BTCUSDT`, exprimé en BTC). |
+| `close_time` | datetime | Clôture de la bougie (UTC, naïf). Égale à `open_time + interval − 1ms` pour Binance. |
+| `pct_change` | float | Variation de la bougie en pourcentage : `(close − open) / open × 100`. Positif = bougie haussière, négatif = bougie baissière. Arrondi à 4 décimales. |
 
 ### Relation entre les feuilles
 
