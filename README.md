@@ -2,6 +2,8 @@
 
 Application Dash locale pour récupérer, visualiser et archiver des chandeliers crypto. Chaque trade chargé peut être empilé dans un **unique** fichier Excel réutilisable — suffisant pour reconstruire n'importe quel graphique plus tard, sans refaire d'appel API.
 
+Un script secondaire (`build_labels.py`) consomme ensuite cet Excel pour produire un `labels.csv` au format imposé par `guide.md` (pattern "pump & dump" : timestamp 30m du sommet pour chaque exemple).
+
 ---
 
 ## Installation
@@ -31,9 +33,9 @@ Puis ouvrir **http://127.0.0.1:8050** dans le navigateur. `Ctrl+C` pour arrêter
 | **API** | Exchange source : **Binance** ou **Coinbase**. Architecture extensible, voir plus bas. |
 | **Symbol** | Paire de trading. Format dépend de l'exchange : `BTCUSDT` sur Binance, `BTC-USD` sur Coinbase. Majuscules forcées. Le placeholder du champ s'adapte à l'API choisie. |
 | **Interval** | Dépend de l'exchange. **Binance** : 15 granularités (`1m` → `1M`). **Coinbase** : 6 granularités (`1m`, `5m`, `15m`, `1h`, `6h`, `1d`). La liste se met à jour en changeant d'API. |
-| **Début / Fin (UTC)** | Bornes de la plage à récupérer. Le DatePicker sélectionne la date, le champ texte adjacent l'heure (`HH:MM`). **Les heures sont interprétées en UTC.** |
+| **Début / Fin (UTC)** | Bornes de la plage à récupérer. Champ texte unique au format `JJ/MM/AAAA HH:MM` (ex. `25/04/2025 14:30`). Les formats `JJ/MM/AAAA`, `AAAA-MM-JJ HH:MM` et `AAAA-MM-JJ` sont également acceptés. **Les heures sont interprétées en UTC.** |
 
-Clic sur **Charger les chandelles** → appel API, récupération paginée (Binance renvoie max 1000 chandelles par requête, le fetch boucle automatiquement pour couvrir la plage entière), puis rendu du graphique (candles + histogramme de volume).
+Clic sur **Charger les chandelles** → appel API, récupération paginée (Binance renvoie max 1000 chandelles par requête, Coinbase 300 ; le fetch boucle automatiquement pour couvrir la plage entière), puis rendu du graphique (candles + histogramme de volume). Le survol d'une bougie affiche OHLC + la **variation en %** de la bougie.
 
 ### 2. Empiler un trade dans Excel (section « Export Excel »)
 
@@ -110,11 +112,52 @@ Le bouton **🗑 Supprimer** retire la ligne `metadata` et toutes les lignes `ca
 
 ---
 
+## Génération du `labels.csv` (pattern pump & dump)
+
+Le fichier `guide.md` (à la racine) décrit un format de labelisation attendu pour un dataset pump & dump : un CSV où chaque ligne identifie le timestamp 30m exact du **sommet** d'un pump historique.
+
+Le script `build_labels.py` automatise la production de ce CSV à partir des trades déjà stockés dans `exports/candles.xlsx`.
+
+```bash
+python build_labels.py
+```
+
+Pour chaque trade du Excel, le script :
+
+1. Lit les bougies stockées et repère celle avec le `high` le plus élevé → donne la zone grossière du pic.
+2. Refait un **fetch 30m Binance** (±1 jour autour de ce pic) pour retrouver la granularité demandée par le guide.
+3. Prend la bougie 30m dont le `high` est maximum → c'est le vrai ATH à la demi-heure près.
+4. Écrit une ligne dans `labels.csv` au format strict du guide :
+
+```csv
+symbol,timeframe,t_ath,exchange
+SUI/USDT,30m,2025-04-25T12:00:00Z,binance
+AVAX/USDT,30m,2025-05-12T07:30:00Z,binance
+```
+
+### Règles de format (imposées par le guide)
+
+- `symbol` : avec slash (`SOL/USDT`, pas `SOLUSDT`). Les paires Coinbase `XXX-USD` sont automatiquement normalisées en `XXX/USDT` Binance.
+- `timeframe` : toujours `30m`.
+- `t_ath` : ISO 8601 avec `Z` final (UTC). Minutes `:00` ou `:30` uniquement (cohérent avec des bougies 30m).
+- `exchange` : toujours `binance`.
+
+### Contrainte sur le Excel
+
+**`build_labels.py` ne modifie jamais `candles.xlsx`** — le Excel est strictement en lecture seule côté script. Toutes les modifications doivent passer par l'app Dash (ajout ou suppression de trades).
+
+Pour obtenir des timestamps précis, charge dans l'app une **fenêtre relativement serrée autour du pump** voulu (quelques semaines maximum) : le max du `high` sur cette fenêtre sera la zone du pic. Si tu charges plusieurs mois, le script prendra le pic global de la période — qui n'est pas forcément le pump que tu voulais labeliser.
+
+---
+
 ## Architecture
 
 ```
 CandleVisualizer/
 ├── app.py                    # Point d'entrée Dash
+├── build_labels.py           # Script : xlsx → labels.csv (refetch 30m pour ATH précis)
+├── guide.md                  # Spec du format CSV attendu (pump & dump)
+├── labels.csv                # Sortie de build_labels.py
 ├── api/
 │   ├── __init__.py           # Registre AVAILABLE_APIS
 │   ├── base.py               # Classe abstraite ExchangeAPI
