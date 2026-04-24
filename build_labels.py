@@ -4,10 +4,10 @@ Génère labels.csv à partir des trades déjà enregistrés dans exports/candle
 Le fichier Excel n'est JAMAIS modifié — on ne fait que le lire.
 
 Pour chaque trade :
-  1. On identifie le jour du pic (high max) dans les bougies 1d stockées
+  1. On identifie le jour du pic (high max) dans les bougies stockées
   2. On refait un fetch 30m sur Binance dans une fenêtre ±1j autour de ce jour
-  3. On prend la bougie 30m dont le high est le plus élevé → c'est le vrai ATH
-  4. On écrit une ligne au format imposé par guide.md
+  3. On prend la bougie 30m dont le high est le plus élevé
+  4. On écrit une ligne (symbol,timeframe,t_ath,exchange) dans labels.csv
 
 Usage : python build_labels.py
 """
