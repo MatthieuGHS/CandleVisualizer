@@ -12,6 +12,9 @@ CANDLE_COLUMNS = ["open_time", "open", "high", "low", "close", "volume", "close_
 class ExchangeAPI(ABC):
     name: str
     supported_intervals: list[str]
+    # Les 4 intervalles fetched systématiquement et écrits dans 4 fichiers Excel
+    # synchronisés. Choisis pour matcher ce que l'exchange supporte nativement.
+    export_intervals: tuple[str, str, str, str]
 
     @abstractmethod
     def fetch_candles(

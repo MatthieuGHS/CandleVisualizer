@@ -35,6 +35,7 @@ GRANULARITY_SECONDS: dict[str, int] = {
 class CoinbaseAPI(ExchangeAPI):
     name = "Coinbase"
     supported_intervals = list(INTERVAL_MAP.keys())
+    export_intervals = ("15m", "1h", "6h", "1d")
 
     def interval_to_timedelta(self, interval: str) -> timedelta:
         if interval not in INTERVAL_MAP:

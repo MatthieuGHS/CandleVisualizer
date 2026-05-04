@@ -36,6 +36,7 @@ INTERVAL_MAP: dict[str, timedelta] = {
 class BinanceAPI(ExchangeAPI):
     name = "Binance"
     supported_intervals = list(INTERVAL_MAP.keys())
+    export_intervals = ("30m", "1h", "4h", "1d")
 
     def interval_to_timedelta(self, interval: str) -> timedelta:
         if interval not in INTERVAL_MAP:
