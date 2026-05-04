@@ -12,6 +12,7 @@ puis `replace`, avec cleanup `finally` des `.tmp` orphelins.
 from __future__ import annotations
 
 import io
+import os
 import uuid
 import zipfile
 from datetime import datetime
@@ -22,7 +23,10 @@ import pandas as pd
 from .models import CANDLES_COLUMNS, METADATA_COLUMNS, TradeMetadata
 
 
-EXPORTS_DIR = Path(__file__).resolve().parent.parent / "exports"
+# Override possible via env var pour pointer vers un volume persistant
+# (Railway, Fly, Render, etc.). Défaut : `<repo>/exports/`.
+_DEFAULT_EXPORTS = Path(__file__).resolve().parent.parent / "exports"
+EXPORTS_DIR = Path(os.environ.get("EXPORTS_DIR") or _DEFAULT_EXPORTS)
 
 # Tous les intervalles potentiellement présents (union des export_intervals des APIs)
 ALL_INTERVALS = ("15m", "30m", "1h", "4h", "6h", "1d")

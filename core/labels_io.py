@@ -14,12 +14,15 @@ from __future__ import annotations
 
 import csv
 import io
+import os
 from pathlib import Path
 
 import pandas as pd
 
 
-LABELS_PATH = Path(__file__).resolve().parent.parent / "labels.csv"
+# Override possible via env var pour persistance (Railway volume, etc.)
+_DEFAULT_LABELS = Path(__file__).resolve().parent.parent / "labels.csv"
+LABELS_PATH = Path(os.environ.get("LABELS_PATH") or _DEFAULT_LABELS)
 LABELS_FIELDS = ["symbol", "timeframe", "t_ath", "exchange"]
 
 _KNOWN_QUOTES = ("USDT", "USDC", "USD", "EUR", "GBP", "BTC", "ETH")

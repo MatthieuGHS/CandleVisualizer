@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 from dash import Dash
 
 from ui.callbacks import register_callbacks
@@ -14,7 +16,11 @@ def create_app() -> Dash:
 
 
 app = create_app()
+# Exposé pour gunicorn (`gunicorn app:server`).
+server = app.server
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="127.0.0.1", port=8050)
+    port = int(os.environ.get("PORT", 8050))
+    debug = os.environ.get("DASH_DEBUG", "0") == "1"
+    app.run(debug=debug, host="0.0.0.0", port=port)
